@@ -18,8 +18,7 @@ var connectHandler = function connected(dest) {
 }
 
 eventEmitter.on('connection', connectHandler)
-
-const port = 3000
+const port = process.env.PORT
 
 http.createServer(function (request, response) {
    eventEmitter.emit('connection', request.url)
