@@ -1,4 +1,4 @@
-# Spotify Suggestor
+# Spotify Suggester
 ## Project Description
 The goal of this project is to create a web app that helps Spotify listeners find songs that are similar to the one they are currently listening to.
 
