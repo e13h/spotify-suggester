@@ -32,18 +32,14 @@ http.createServer(function (request, response) {
       return response.end(`Error: ${q.error}\n`)
    }
    eventEmitter.emit('auth-code-received', q.code)
-   return response.end(`Access token: ${q.code}\n`)
+   return response.end(`Access code: ${q.code.slice(0, 10)}...\n`)
 }).listen(port)
 
 console.log(`Server running at localhost:${port}`)
 
 var getAuthToken = function (authorization_code) {
-   const data = JSON.stringify({
-      grant_type: 'authorization_code',
-      code: `${authorization_code}`,
-      redirect_uri: `${encodeURIComponent('http://music.evanphilipsmith.com/callback')}`
-   })
-   const clientIDSecret = Buffer.from(`*${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}*`).toString('base64')
+   const data = `grant_type=authorization_code&code=${authorization_code}&redirect_uri=${encodeURIComponent('http://music.evanphilipsmith.com/callback')}`
+   const clientIDSecret = Buffer.from(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`).toString('base64')
    const options = {
       hostname: 'accounts.spotify.com',
       path: '/api/token',
