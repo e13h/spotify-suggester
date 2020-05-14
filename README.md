@@ -6,5 +6,3 @@ Please consider joining my project. [Here](https://github.com/BYUCS452S2020/spot
 ## Team
 * Evan Smith
 * Madison Nelson
-
-*Note:* there is room for one more person to join the team.
