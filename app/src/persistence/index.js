@@ -130,7 +130,7 @@ async function getUsers() {
 
 async function getPlaylists(userID) {
     return new Promise((acc, rej) => {
-        pool.query('SELECT * FROM playlists WHERE userID = ?', [userID], (err, rows) => {
+        pool.query('SELECT * FROM playlist WHERE userID = ?', [userID], (err, rows) => {
             if (err) return rej(err);
             acc(rows);
         })
