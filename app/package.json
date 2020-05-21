@@ -1,0 +1,39 @@
+{
+  "name": "spotify-suggester",
+  "version": "1.0.0",
+  "description": "Suggests songs you haven't listened to in a while based on your currently playing Spotify track.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.js",
+    "tunnel": "node src/tunnel.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BYUCS452S2020/spotify-suggester.git"
+  },
+  "keywords": [
+    "spotify",
+    "suggester",
+    "recommender",
+    "music"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BYUCS452S2020/spotify-suggester/issues"
+  },
+  "homepage": "https://github.com/BYUCS452S2020/spotify-suggester#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mysql": "^2.18.1",
+    "node-fetch": "^2.6.0",
+    "uuid": "^8.0.0",
+    "wait-port": "^0.2.7"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
