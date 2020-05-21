@@ -8,6 +8,8 @@ module.exports = async (req, res) => {
       expirationUTC: new Date(Date.now() + (req.body.expires_in * 1000)).toUTCString(),
    };
    
-   await db.storeToken(token);
+   await db.storeToken(token).catch((error) => {
+      res.send('Error storing token in database: ' + error);
+   });
    res.send('Token stored');
 };
