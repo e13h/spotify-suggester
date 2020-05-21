@@ -97,9 +97,9 @@ function dropTables() {
     });
 }
 
-function executeStatement(statement) {
+function executeStatement(statement, args = []) {
     return new Promise((acc, rej) => {
-        pool.query(statement, (err) => {
+        pool.query(statement, args, (err) => {
             if (err) return rej(err);
             acc('worked');
         });
