@@ -29,6 +29,7 @@ async function init() {
         user,
         password,
         database,
+        charset: 'utf8mb4',
     });
 
     // return dropTables().then(() => createTables()); // for use during development only
@@ -57,7 +58,7 @@ function createTables() {
     const CREATE_PLAYLIST = `CREATE TABLE IF NOT EXISTS playlist (
         playlistID VARCHAR(${spotifyIdLength}) NOT NULL,
         userID VARCHAR(${uuidLength}) NOT NULL,
-        name VARCHAR(${nameLength}),
+        name VARCHAR(${nameLength}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
         numSongs INT,
         pictureURL VARCHAR(${urlLength}),
         PRIMARY KEY (playlistID, userID),
