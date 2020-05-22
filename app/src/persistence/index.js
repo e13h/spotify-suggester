@@ -138,6 +138,15 @@ async function getPlaylists(userID) {
     });
 }
 
+async function getToken(userID) {
+    return new Promise((acc, rej) => {
+        pool.query('SELECT accessToken FROM token WHERE userID = ?', [userID], (err, rows) => {
+            if (err) return rej(err);
+            acc(rows[0].accessToken);
+        });
+    });
+}
+
 async function storeUser(item) {
     return new Promise((acc, rej) => {
         pool.query(
@@ -158,28 +167,35 @@ async function storeToken(token) {
             VALUES (?, ?, STR_TO_DATE(?, "%a, %d %b %Y %H:%i:%s GMT"), ?)',
             [token.accessToken, token.userID, token.expirationUTC, token.refreshToken],
             (err) => {
-                if (err) return rej(err);
+                if (err) return rej('Error inserting token into db: ' + err);
                 acc();
             }
         );
     });
 }
 
-async function getToken(userID) {
-    return new Promise((acc, rej) => {
-        pool.query('SELECT accessToken FROM token WHERE userID = ?', [userID], (err, rows) => {
-            if (err) return rej(err);
-            acc(rows[0].accessToken);
-        });
-    });
+async function storePlaylists(playlists) {
+    let playlistPromises = [];
+    for (const item of playlists) {
+        playlistPromises.push(
+            executeStatement('INSERT INTO playlist (playlistID, userID, name, numSongs, pictureURL) \
+            VALUES (?, ?, ?, ?, ?)',
+            [item.playlistID, item.userID, item.name, item.numSongs, item.pictureURL]
+        ).catch((error) => {
+            return Promise.reject(new Error('Error inserting playlist into database: ' + error));
+        }));
+    }
+
+    return Promise.all(playlistPromises);
 }
 
 module.exports = {
     init,
     teardown,
     getUsers,
-    storeUser,
-    storeToken,
     getToken,
     getPlaylists,
+    storeUser,
+    storeToken,
+    storePlaylists,
 };
