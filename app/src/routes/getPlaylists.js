@@ -1,8 +1,16 @@
 const db = require('../persistence');
+const refresh = require('./refresh');
 
 module.exports = async (req, res) => {
-   const playlists = await db.getPlaylists().catch((error) => {
-      res.send('Error getting playlists from database: ' + error);
+   await refresh.fetchPlaylists(req.params.userID).catch((error) => {
+      res.status(500).send('Could not fetch playlists from Spotify: ' + error);
    });
-   res.send(playlists);
+   const playlists = await db.getPlaylists(req.params.userID).catch((error) => {
+      res.status(500).send('Could not get playlists from database: ' + error);
+   });
+   let playlistNames = [];
+   for (const {name: n} of playlists) {
+      playlistNames.push(n);
+   }
+   res.send(playlistNames);
 };
