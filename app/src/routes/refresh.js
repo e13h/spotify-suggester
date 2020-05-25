@@ -1,72 +1,41 @@
 const db = require('../persistence');
-const fetch = require('node-fetch');
+const sync = require('../helpers/sync');
 
-async function getDataFromSpotify(userID, fetchURL, unpacker) {
-   const accessToken = await db.getToken(userID).catch((error) => {
-      return Promise.reject(new Error('Error getting access token from database: ' + error));
-   });
-
-   let itemsUnpacked = [];
-   while (fetchURL !== null) {
-      const response = await fetch(fetchURL, {
-         method: 'GET',
-         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
-         }
-      });
-
-      const data = await response.json();
-      fetchURL = data.next;
-      itemsUnpacked = itemsUnpacked.concat(unpacker(data.items));
+module.exports = async (req, res) => {
+   const userID = req.params.userID;
+   const accessToken = req.session.accessToken;
+   if (!(await db.userIDExists(userID))) {
+      res.send(`User "${userID}" does not exist`);
+      return;
    }
-   return itemsUnpacked;
-}
+   if (accessToken !== await db.getToken(userID)) {
+      res.status(403).send('Access token is invalid');
+      return;
+   }
 
-async function fetchPlaylists(userID) {
-   const limit = 50;
-   const firstFetch = `https://api.spotify.com/v1/me/playlists?limit=${limit}`;
-
-   const playlists = await getDataFromSpotify(userID, firstFetch, (data) => {
-      return data.map((item) => Object.assign({
-         playlistID: item.id,
-         userID: userID,
-         name: item.name,
-         numSongs: item.tracks.total,
-         pictureURL: item.images[0].url,
-      }));
-   });
-
+   const playlists = await sync.fetchPlaylists(accessToken);
    await db.storePlaylists(playlists).catch((error) => {
       return Promise.reject(new Error('Error storing playlists in database: ' + error));
    });
 
-   // get each track from each playlist
-   // await fetchTracksFromPlaylists(userID, playlists.map((item) => { return item.playlistID }));
+   let totalDropped = 0;
+   for (const playlist of playlists.map((playlist) => [playlist.playlistID])) {
+      let tracks = await sync.fetchTracks(accessToken, playlist);
+      const totalIncludingNull = tracks.length;
+      tracks = tracks.filter(({ trackID }) => trackID !== null); // drop tracks with null trackID
+      totalDropped += (totalIncludingNull - tracks.length)
 
-   return playlists;
-}
-
-async function fetchTracksFromPlaylists(userID, playlistIDs) {
-   for (const playlistID of playlistIDs) {
-      const limit = 50;
-      let firstFetch = `https://api.spotify.com/v1/playlists/${playlistID}/tracks?limit=${limit}`;
-      
-      const tracks = await getDataFromSpotify(userID, firstFetch, (data) => {
-         return data.map((item) => Object.assign({
-            trackID: item.track.id,
-            trackName: item.track.name,
-            artistName: item.track.artists[0].name,
-            albumName: item.track.album.name,
-            length: item.track.duration_ms,
-         }));
+      await db.storeTracks(tracks).catch((error) => {
+         return Promise.reject(new Error ('Error storing tracks in database: ' + error));
       });
-
-      // do something with the tracks
+      const userLibrary = tracks.map((track) => [userID, track.trackID, playlist]);
+      await db.storeUserLibrary(userLibrary).catch((error) => {
+         return Promise.reject(new Error('Error storing user library in database: ' + error));
+      });
    }
-}
+   console.log(`Dropped ${totalDropped} tracks containing null IDs`);
 
-module.exports = {
-   fetchPlaylists,
-};
+   console.log(`Saved ${await db.getNumPlaylists(userID)} playlists and ${(await db.getNumTracks(userID)).unique} tracks.`);
+
+   res.redirect(`${process.env.APPLICATION_URL}/user/${userID}/playlists`);
+}
