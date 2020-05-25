@@ -51,8 +51,8 @@ function createTables() {
     const CREATE_TOKEN = `CREATE TABLE IF NOT EXISTS token (
         accessToken VARCHAR(${tokenLength}) NOT NULL PRIMARY KEY,
         userID VARCHAR(${uuidLength}) NOT NULL,
-        expiration DATETIME,
-        refreshToken VARCHAR(${tokenLength}),
+        expiration DATETIME DEFAULT NULL,
+        refreshToken VARCHAR(${tokenLength}) DEFAULT NULL,
         FOREIGN KEY (userID) REFERENCES user(id) ON DELETE CASCADE
     );`;
     const CREATE_PLAYLIST = `CREATE TABLE IF NOT EXISTS playlist (
