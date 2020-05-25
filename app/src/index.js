@@ -15,6 +15,8 @@ const profile = require('./routes/profile');
 
 const port = 3000;
 
+app.set('view engine', 'pug');
+app.set('views', __dirname + '/views');
 app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/static'));
 app.use(session({ secret: "spotify secret! "}));

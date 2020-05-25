@@ -1,5 +1,6 @@
 const db = require('../persistence');
 const fetch = require('node-fetch');
+const suggest = require('../helpers/suggest');
 
 module.exports = async (req, res) => {
    const userID = req.params.userID;
@@ -19,8 +20,15 @@ module.exports = async (req, res) => {
       }
    });
    const data = await response.json();
-   res.send(`Current song: ${data.item.name}
-   Current artist: ${data.item.artists[0].name}
-   Current album: ${data.item.album.name}
-   Current album artwork: ${data.item.album.images[0].url}`);
+
+   res.render('profile', {
+      user: await db.getUsername(userID),
+      numPlaylists: await db.getNumPlaylists(userID),
+      numTracks: (await db.getNumTracks(userID)).unique,
+      trackName: data.item.name,
+      artist: data.item.artists[0].name,
+      album: data.item.album.name,
+      artworkUrl: data.item.album.images[0].url,
+      suggestions: await suggest.makeSuggestions(data.item.id),
+   });
 };

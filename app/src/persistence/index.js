@@ -156,6 +156,13 @@ async function userIDExists(userID) {
         });
 }
 
+async function getUsername(userID) {
+    const selectStatement = 'SELECT username FROM user WHERE id = ?';
+    return executeStatement(selectStatement, [userID], (rows) => {
+        return rows.length > 0 ? rows[0].username : 'Unknown';
+    });
+}
+
 async function usernameExists(username) {
     const selectStatement = 'SELECT * FROM user WHERE username = ?';
     return executeStatement(selectStatement, [username], (rows) => {
@@ -251,6 +258,7 @@ module.exports = {
     init,
     teardown,
     usernameExists,
+    getUsername,
     userIDExists,
     getUserID,
     getUsers,

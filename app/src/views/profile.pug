@@ -1,0 +1,12 @@
+h1 Welcome #{user}
+p You have #{numPlaylists} playlists and #{numTracks} tracks that recommendations will come from.
+center
+   h2 Currently Listening To:
+   img(src=`${artworkUrl}` alt="album artwork" width=250)
+   h2 #{trackName}
+   p #{artist} - #{album}
+
+h2 Recommendations
+ul
+   each val in suggestions
+      li= val
