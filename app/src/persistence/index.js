@@ -131,11 +131,11 @@ function dropTables() {
     });
 }
 
-function executeStatement(statement, args = []) {
+function executeStatement(statement, args = [], unpacker = (result) => { return result; }) {
     return new Promise((acc, rej) => {
-        pool.query(statement, args, (err) => {
+        pool.query(statement, args, (err, result) => {
             if (err) return rej(err);
-            acc('worked');
+            acc(unpacker(result));
         });
     });
 }
