@@ -7,10 +7,11 @@ const db = require('./persistence');
 
 const getUsers = require('./routes/getUsers');
 const addUser = require('./routes/addUser');
+const signin = require('./routes/signin');
 const callback = require('./routes/callback');
 const refresh = require('./routes/refresh');
 const getPlaylists = require('./routes/getPlaylists');
-const addToken = require('./routes/addToken');
+const profile = require('./routes/profile');
 
 const port = 3000;
 
@@ -23,6 +24,8 @@ app.post('/users', addUser);
 app.get('/callback', callback);
 app.get('/user/:userID/playlists', getPlaylists);
 app.get('/user/:userID/refresh', refresh);
+app.get('/user/:userID', profile);
+app.post('/signin', signin);
 
 db.init().then(() => {
    app.listen(port, () => console.log(`Listening at http://localhost:${port}`));
