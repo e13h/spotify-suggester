@@ -3,7 +3,8 @@ const { v4: uuidv4 } = require('uuid');
 
 const callback_uri = encodeURIComponent(`${process.env.APPLICATION_URL}/callback`);
 const scopes = [
-   'playlist-read-private'
+   'playlist-read-private',
+   'user-read-currently-playing',
 ]
 
 module.exports = async (req, res) => {

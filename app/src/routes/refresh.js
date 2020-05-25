@@ -37,5 +37,5 @@ module.exports = async (req, res) => {
 
    console.log(`Saved ${await db.getNumPlaylists(userID)} playlists and ${(await db.getNumTracks(userID)).unique} tracks.`);
 
-   res.redirect(`${process.env.APPLICATION_URL}/user/${userID}/playlists`);
+   res.redirect(`${process.env.APPLICATION_URL}/user/${userID}`);
 }

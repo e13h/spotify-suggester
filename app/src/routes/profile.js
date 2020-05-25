@@ -1,4 +1,5 @@
 const db = require('../persistence');
+const fetch = require('node-fetch');
 
 module.exports = async (req, res) => {
    const userID = req.params.userID;
@@ -8,7 +9,7 @@ module.exports = async (req, res) => {
       return;
    }
    
-   const fetchURL = 'insert fetch API URL here';
+   const fetchURL = 'https://api.spotify.com/v1/me/player/currently-playing';
    const response = await fetch(fetchURL, {
       method: 'GET',
       headers: {
@@ -18,8 +19,8 @@ module.exports = async (req, res) => {
       }
    });
    const data = await response.json();
-   res.send(`Current song: ${data.track.name}
-   Current artist: ${data.track.artists[0].name}
-   Current album: ${data.track.album.name}
-   Current album artwork: ${data.track.url}`);
+   res.send(`Current song: ${data.item.name}
+   Current artist: ${data.item.artists[0].name}
+   Current album: ${data.item.album.name}
+   Current album artwork: ${data.item.album.images[0].url}`);
 };
