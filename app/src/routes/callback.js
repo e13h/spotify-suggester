@@ -24,14 +24,17 @@ module.exports = async (req, res) => {
       }
    });
    const data = await response.json();
-      const token = {
-         accessToken: data.access_token,
-         userID: userID,
-         refreshToken: data.refresh_token,
-         expirationUTC: new Date(Date.now() + (data.expires_in * 1000)).toUTCString(),
-      };
+   const token = {
+      accessToken: data.access_token,
+      userID: userID,
+      refreshToken: data.refresh_token,
+      expirationUTC: new Date(Date.now() + (data.expires_in * 1000)).toUTCString(),
+   };
    await db.storeToken(token).catch((error) => {
       res.send('Error storing token: ' + error);
       return;
    });
+
+   req.session.accessToken = token.accessToken;
+   res.redirect(`${process.env.APPLICATION_URL}/user/${userID}/refresh`);
 };

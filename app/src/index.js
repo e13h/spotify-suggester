@@ -22,6 +22,7 @@ app.get('/users', getUsers);
 app.post('/users', addUser);
 app.get('/callback', callback);
 app.get('/user/:userID/playlists', getPlaylists);
+app.get('/user/:userID/refresh', refresh);
 
 db.init().then(() => {
    app.listen(port, () => console.log(`Listening at http://localhost:${port}`));
