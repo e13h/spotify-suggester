@@ -173,7 +173,7 @@ async function usernameExists(username) {
 async function getUserID(username, password) {
     const selectStatement = 'SELECT id FROM user WHERE username = ? AND password = ?';
     return executeStatement(selectStatement, [username, password], (rows) => {
-        return rows.length > 0 ? rows[0].userID : null;
+        return rows.length > 0 ? rows[0].id : null;
         })
 }
 
