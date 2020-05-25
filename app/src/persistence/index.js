@@ -62,6 +62,29 @@ function createTables() {
         pictureURL VARCHAR(${urlLength}) DEFAULT NULL,
         PRIMARY KEY (playlistID)
     );`;
+    const CREATE_TRACK = `CREATE TABLE IF NOT EXISTS track (
+        trackID VARCHAR(${spotifyIdLength}) NOT NULL PRIMARY KEY,
+        trackName VARCHAR(${nameLength}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Unknown',
+        artistName VARCHAR(${nameLength}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'Unknown',
+        albumName VARCHAR(${nameLength}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'Unknown',
+        lengthMS INT DEFAULT NULL,
+        danceability FLOAT DEFAULT NULL,
+        acousticness FLOAT DEFAULT NULL,
+        energy FLOAT DEFAULT NULL,
+        loudness FLOAT DEFAULT NULL,
+        mode FLOAT DEFAULT NULL,
+        tempo FLOAT DEFAULT NULL,
+        valence FLOAT DEFAULT NULL
+    );`;
+    const CREATE_USER_LIBRARY = `CREATE TABLE IF NOT EXISTS userLibrary (
+        userID VARCHAR(${uuidLength}) NOT NULL,
+        trackID VARCHAR(${spotifyIdLength}) NOT NULL,
+        playlistID VARCHAR(${spotifyIdLength}) NOT NULL,
+        PRIMARY KEY (userID, trackID, playlistID),
+        FOREIGN KEY (userID) REFERENCES user(id) ON DELETE CASCADE,
+        FOREIGN KEY (trackID) REFERENCES track(trackID) ON DELETE CASCADE,
+        FOREIGN KEY (playlistID) REFERENCES playlist(playlistID) ON DELETE CASCADE
+    )`
 
     return new Promise((acc, rej) => {
         executeStatement(CREATE_USER).then(() => {
@@ -72,6 +95,12 @@ function createTables() {
             return executeStatement(CREATE_PLAYLIST);
         }).then(() => {
             console.log('added playlist');
+            return executeStatement(CREATE_TRACK);
+        }).then(() => {
+            console.log('added track');
+            return executeStatement(CREATE_USER_LIBRARY);
+        }).then(() => {
+            console.log('added userLibrary');
             acc();
         }).catch((err) => {
             return rej(err);
@@ -83,6 +112,12 @@ function dropTables() {
     return new Promise((acc, rej) => { 
         executeStatement('DROP TABLE IF EXISTS token').then(() => {
             console.log('dropped token');
+            return executeStatement('DROP TABLE IF EXISTS userLibrary');
+        }).then(() => {
+            console.log('dropped userLibrary');
+            return executeStatement('DROP TABLE IF EXISTS track');
+        }).then(() => {
+            console.log('dropped track');
             return executeStatement('DROP TABLE IF EXISTS playlist');
         }).then(() => {
             console.log('dropped playlist');
