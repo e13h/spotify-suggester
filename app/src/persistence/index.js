@@ -189,46 +189,62 @@ async function getToken(userID) {
         });
 }
 
-async function storeUser(item) {
-    return new Promise((acc, rej) => {
-        pool.query(
-            'INSERT INTO user (id, username, password) VALUES (?, ?, ?)',
-            [item.id, item.username, item.password],
-            err => {
-                if (err) return rej(err);
-                acc();
+async function getNumPlaylists(userID) {
+    const selectStatement = 'SELECT COUNT(DISTINCT playlistID) AS NumPlaylists \
+        FROM userLibrary WHERE userID = ?';
+    return executeStatement(selectStatement, [userID], (rows) => {
+        return rows.length > 0 ? rows[0].NumPlaylists : null;
+    });
             }
-       );
+
+async function getNumTracks(userID) {
+    const selectStatement = 'SELECT COUNT(DISTINCT trackID) AS UniqueTracks, COUNT(trackID) AS TotalTracks \
+        FROM userLibrary WHERE userID = ?';
+    return executeStatement(selectStatement, [userID], (rows) => {
+        return rows.length > 0 ? { total: rows[0].TotalTracks, unique: rows[0].UniqueTracks } : null;
    });
 }
 
-async function storeToken(token) {
-    return new Promise((acc, rej) => {
-        pool.query(
-            'INSERT INTO token (accessToken, userID, expiration, refreshToken) \
-            VALUES (?, ?, STR_TO_DATE(?, "%a, %d %b %Y %H:%i:%s GMT"), ?)',
-            [token.accessToken, token.userID, token.expirationUTC, token.refreshToken],
-            (err) => {
-                if (err) return rej('Error inserting token into db: ' + err);
-                acc();
-            }
-        );
-    });
+async function storeUser(item) {
+    const insertStatement = 'INSERT INTO user (id, username, password) VALUES (?, ?, ?)';
+    return executeStatement(insertStatement, [item.id, item.username, item.password]);
 }
 
+async function storeToken(token) {
+    const insertStatement = 'INSERT INTO token (accessToken, userID, expiration, refreshToken) \
+        VALUES (?, ?, STR_TO_DATE(?, "%a, %d %b %Y %H:%i:%s GMT"), ?)';
+    return executeStatement(insertStatement, [token.accessToken, token.userID, token.expirationUTC, token.refreshToken]);
+            }
+
 async function storePlaylists(playlists) {
-    let playlistPromises = [];
-    for (const item of playlists) {
-        playlistPromises.push(
-            executeStatement('INSERT INTO playlist (playlistID, userID, name, numSongs, pictureURL) \
-            VALUES (?, ?, ?, ?, ?)',
-            [item.playlistID, item.userID, item.name, item.numSongs, item.pictureURL]
-        ).catch((error) => {
-            return Promise.reject(new Error('Error inserting playlist into database: ' + error));
-        }));
+    const insertStatement = 'INSERT INTO playlist (playlistID, name, numSongs, pictureURL) VALUES ? \
+        ON DUPLICATE KEY UPDATE \
+        name = VALUES(name), numSongs = VALUES(numSongs), pictureURL = VALUES(pictureURL);';
+    return executeStatement(insertStatement, [playlists.map(Object.values)], (result) => {return result.message;});
+}
+
+async function storeTracks(tracks) {
+    const insertStatement = 'INSERT INTO track (trackID, trackName, artistName, albumName, lengthMS, \
+        danceability, acousticness, energy, loudness, mode, tempo, valence) \
+        VALUES ? \
+        ON DUPLICATE KEY UPDATE \
+        trackName = VALUES(trackName), \
+        artistName = VALUES(artistName), \
+        albumName = VALUES(albumName), \
+        lengthMS = VALUES(lengthMS), \
+        danceability = VALUES(danceability), \
+        acousticness = VALUES(acousticness), \
+        energy = VALUES(energy), \
+        loudness = VALUES(loudness), \
+        mode = VALUES(mode), \
+        tempo = VALUES(tempo), \
+        valence = VALUES(valence)';
+    return executeStatement(insertStatement, [tracks.map(Object.values)]);
     }
 
-    return Promise.all(playlistPromises);
+async function storeUserLibrary(userLibrary) {
+    const insertStatement = 'INSERT IGNORE INTO userLibrary (userID, trackID, playlistID) VALUES ?';
+    return executeStatement(insertStatement, [userLibrary.map(Object.values)]);
 }
 
 module.exports = {
@@ -240,7 +256,11 @@ module.exports = {
     getUsers,
     getToken,
     getPlaylists,
+    getNumPlaylists,
+    getNumTracks,
     storeUser,
     storeToken,
     storePlaylists,
+    storeTracks,
+    storeUserLibrary,
 };
