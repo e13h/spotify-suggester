@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const session = require('express-session');
 const app = express();
 
 const db = require('./persistence');
@@ -15,6 +16,7 @@ const port = 3000;
 
 app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/static'));
+app.use(session({ secret: "spotify secret! "}));
 
 app.get('/users', getUsers);
 app.post('/users', addUser);
