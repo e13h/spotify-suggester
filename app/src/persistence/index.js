@@ -57,12 +57,10 @@ function createTables() {
     );`;
     const CREATE_PLAYLIST = `CREATE TABLE IF NOT EXISTS playlist (
         playlistID VARCHAR(${spotifyIdLength}) NOT NULL,
-        userID VARCHAR(${uuidLength}) NOT NULL,
-        name VARCHAR(${nameLength}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-        numSongs INT,
-        pictureURL VARCHAR(${urlLength}),
-        PRIMARY KEY (playlistID, userID),
-        FOREIGN KEY (userID) REFERENCES user(id) ON DELETE CASCADE
+        name VARCHAR(${nameLength}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'Unknown',
+        numSongs INT DEFAULT NULL,
+        pictureURL VARCHAR(${urlLength}) DEFAULT NULL,
+        PRIMARY KEY (playlistID)
     );`;
 
     return new Promise((acc, rej) => {
