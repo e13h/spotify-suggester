@@ -9,5 +9,5 @@ module.exports = async (req, res) => {
       return;
    }
    req.session.accessToken = await(db.getToken(userID));
-   res.redirect(`${process.env.APPLICATION_URL}/user/${userID}/profile`);
+   res.redirect(`${process.env.APPLICATION_URL}/user/${userID}`);
 };

@@ -22,6 +22,7 @@ module.exports = async (req, res) => {
    const data = await response.json();
 
    res.render('profile', {
+      userID: userID,
       user: await db.getUsername(userID),
       numPlaylists: await db.getNumPlaylists(userID),
       numTracks: (await db.getNumTracks(userID)).unique,
