@@ -149,35 +149,44 @@ async function teardown() {
     });
 }
 
-async function getUsers() {
-    return new Promise((acc, rej) => {
-        pool.query('SELECT * FROM user', (err, rows) => {
-            if (err) return rej(err);
-            acc(
-                rows.map(item =>
-                    Object.assign({}, item),
-                ),
-            );
+async function userIDExists(userID) {
+    const selectStatement = 'SELECT * FROM user WHERE id = ?';
+    return executeStatement(selectStatement, [userID], (rows) => {
+        return rows.length > 0 ? true : false;
         });
+}
+
+async function usernameExists(username) {
+    const selectStatement = 'SELECT * FROM user WHERE username = ?';
+    return executeStatement(selectStatement, [username], (rows) => {
+        return rows.length > 0 ? true : false;
+    });
+}
+
+async function getUserID(username, password) {
+    const selectStatement = 'SELECT id FROM user WHERE username = ? AND password = ?';
+    return executeStatement(selectStatement, [username, password], (rows) => {
+        return rows.length > 0 ? rows[0].userID : null;
+        })
+}
+
+async function getUsers() {
+    const selectStatement = 'SELECT id, username FROM user';
+    return executeStatement(selectStatement, undefined, (rows) => {
+        return rows.map(item => Object.assign({}, item));
     });
 }
 
 async function getPlaylists(userID) {
-    return new Promise((acc, rej) => {
-        pool.query('SELECT * FROM playlist WHERE userID = ?', [userID], (err, rows) => {
-            if (err) return rej(err);
-            acc(rows);
-        })
-    });
+    const selectStatement = 'SELECT * FROM playlist WHERE playlistID in (SELECT DISTINCT playlistID FROM userLibrary WHERE userID = ?)';
+    return executeStatement(selectStatement, userID);
 }
 
 async function getToken(userID) {
-    return new Promise((acc, rej) => {
-        pool.query('SELECT accessToken FROM token WHERE userID = ?', [userID], (err, rows) => {
-            if (err) return rej(err);
-            acc(rows[0].accessToken);
+    const selectStatement = 'SELECT accessToken FROM token WHERE userID = ?';
+    return executeStatement(selectStatement, [userID], (rows) => {
+        return rows.length > 0 ? rows[0].accessToken : null;
         });
-    });
 }
 
 async function storeUser(item) {
@@ -225,6 +234,9 @@ async function storePlaylists(playlists) {
 module.exports = {
     init,
     teardown,
+    usernameExists,
+    userIDExists,
+    getUserID,
     getUsers,
     getToken,
     getPlaylists,
