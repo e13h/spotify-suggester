@@ -27,17 +27,34 @@ async function fetchTracks(accessToken, playlistID) {
          artistName: item.track.artists[0].name,
          albumName: item.track.album.name,
          length: item.track.duration_ms,
-         danceability: 0,
-         acousticness: 0,
-         energy: 0,
-         loudness: 0,
-         mode: 0,
-         tempo: 0,
-         valence: 0,
       }));
    });
 }
 
+async function fetchAudioFeatures(accessToken, trackIDs) {
+   // assert trackIDs.length <= 100
+   const fetchURL = `https://api.spotify.com/v1/audio-features?ids=${trackIDs.join(',')}`
+   const response = await fetch(fetchURL, {
+      method: 'GET',
+      headers: {
+         'Accept': 'application/json',
+         'Content-Type': 'application/json',
+         'Authorization': `Bearer ${accessToken}`,
+      }
+   });
+
+   const data = await response.json();
+   return data.audio_features.map((item) => Object.assign({
+      trackID: item.id,
+      danceability: item.danceability,
+      acousticness: item.acousticness,
+      energy: item.energy,
+      loudness: item.loudness,
+      mode: item.mode,
+      tempo: item.tempo,
+      valence: item.valence,
+   }));
+}
 
 async function getDataFromSpotify(accessToken, fetchURL, unpacker) {
    let itemsUnpacked = [];
@@ -61,4 +78,5 @@ async function getDataFromSpotify(accessToken, fetchURL, unpacker) {
 module.exports = {
    fetchPlaylists,
    fetchTracks,
+   fetchAudioFeatures,
 }

@@ -33,7 +33,19 @@ module.exports = async (req, res) => {
          return Promise.reject(new Error('Error storing user library in database: ' + error));
       });
    }
+   if (totalDropped > 0) {
    console.log(`Dropped ${totalDropped} tracks containing null IDs`);
+   }
+   
+   const trackIDs = await db.getAllTrackIDs(userID);
+   let start = 0;
+   let end = Math.min(100, trackIDs.length);
+   while (start !== end) {
+      const audioFeatures = await sync.fetchAudioFeatures(accessToken, trackIDs.slice(start, end));
+      db.storeAudioFeatures(audioFeatures);
+      start = end;
+      end = Math.min(end + 100, trackIDs.length);
+   }
 
    console.log(`Saved ${await db.getNumPlaylists(userID)} playlists and ${(await db.getNumTracks(userID)).unique} tracks.`);
 

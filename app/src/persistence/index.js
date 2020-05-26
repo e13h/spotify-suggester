@@ -67,14 +67,18 @@ function createTables() {
         trackName VARCHAR(${nameLength}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Unknown',
         artistName VARCHAR(${nameLength}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'Unknown',
         albumName VARCHAR(${nameLength}) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'Unknown',
-        lengthMS INT DEFAULT NULL,
+        lengthMS INT DEFAULT NULL
+    );`;
+    const CREATE_AUDIO_FEATURES = `CREATE TABLE IF NOT EXISTS audioFeatures (
+        trackID VARCHAR(${spotifyIdLength}) NOT NULL PRIMARY KEY,
         danceability FLOAT DEFAULT NULL,
         acousticness FLOAT DEFAULT NULL,
         energy FLOAT DEFAULT NULL,
         loudness FLOAT DEFAULT NULL,
         mode FLOAT DEFAULT NULL,
         tempo FLOAT DEFAULT NULL,
-        valence FLOAT DEFAULT NULL
+        valence FLOAT DEFAULT NULL,
+        FOREIGN KEY (trackID) REFERENCES track(trackID) ON DELETE CASCADE
     );`;
     const CREATE_USER_LIBRARY = `CREATE TABLE IF NOT EXISTS userLibrary (
         userID VARCHAR(${uuidLength}) NOT NULL,
@@ -98,6 +102,9 @@ function createTables() {
             return executeStatement(CREATE_TRACK);
         }).then(() => {
             console.log('added track');
+            return executeStatement(CREATE_AUDIO_FEATURES);
+        }).then(() => {
+            console.log('added audioFeatures');
             return executeStatement(CREATE_USER_LIBRARY);
         }).then(() => {
             console.log('added userLibrary');
@@ -115,6 +122,9 @@ function dropTables() {
             return executeStatement('DROP TABLE IF EXISTS userLibrary');
         }).then(() => {
             console.log('dropped userLibrary');
+            return executeStatement('DROP TABLE IF EXISTS audioFeatures');
+        }).then(() => {
+            console.log('dropped audioFeatures');
             return executeStatement('DROP TABLE IF EXISTS track');
         }).then(() => {
             console.log('dropped track');
@@ -185,8 +195,15 @@ async function getUsers() {
 }
 
 async function getPlaylists(userID) {
-    const selectStatement = 'SELECT * FROM playlist WHERE playlistID in (SELECT DISTINCT playlistID FROM userLibrary WHERE userID = ?)';
+    const selectStatement = 'SELECT * FROM playlist WHERE playlistID in (SELECT DISTINCT playlistID FROM userLibrary WHERE userID = ?);';
     return executeStatement(selectStatement, userID);
+}
+
+async function getAudioFeatures(trackID) {
+    const selectStatement = 'SELECT danceability, acousticness, energy, loudness, mode, tempo, valence FROM audioFeatures WHERE trackID = ?;';
+    return executeStatement(selectStatement, trackID, (rows) => {
+        return rows.length > 0 ? rows.map(item => Object.assign({}, item)) : null;
+    });
 }
 
 async function getToken(userID) {
@@ -212,6 +229,42 @@ async function getNumTracks(userID) {
    });
 }
 
+async function getAllTrackIDs(userID) {
+    const selectStatement = 'SELECT DISTINCT trackID FROM userLibrary WHERE userID = ?';
+    return executeStatement(selectStatement, [userID], (rows) => {
+        return rows.length > 0 ? rows.map(({ trackID }) => trackID) : null;
+    })
+}
+
+async function getSuggestedTracks(sourceAudioFeatures, userID, numSuggestions = 5) {
+    const selectStatement = `
+    SELECT trackName, artistName, similarityScore
+    FROM track JOIN
+    (
+        SELECT trackID, (danceDiff + acousticDiff + energyDiff + loudDiff + modeDiff + tempoDiff + valenceDiff) as similarityScore
+        FROM (SELECT
+            trackID,
+            ABS(ROUND((danceability - ?), 4)) AS danceDiff,
+            ABS(ROUND((acousticness - ?), 4)) AS acousticDiff,
+            ABS(ROUND((energy - ?), 4)) AS energyDiff,
+            ABS(ROUND((loudness - ?), 4)) AS loudDiff,
+            ABS(ROUND((mode - ?), 4)) AS modeDiff,
+            ABS(ROUND((tempo - ?), 4)) AS tempoDiff,
+            ABS(ROUND((valence - ?), 4)) AS valenceDiff
+            FROM audioFeatures WHERE trackID IN (
+                SELECT DISTINCT trackID FROM userLibrary WHERE userID = ? 
+            )
+        ) diffs
+        ORDER BY similarityScore
+        LIMIT ?
+    ) suggestions
+    ON track.trackID = suggestions.trackID;
+    `;
+    return executeStatement(selectStatement, sourceAudioFeatures.map(Object.values)[0].concat(userID).concat(numSuggestions), (rows) => {
+        return rows.map(({ trackName, artistName, similarityScore }) => `${trackName} by ${artistName} had score of ${similarityScore}`);
+    });
+}
+
 async function storeUser(item) {
     const insertStatement = 'INSERT INTO user (id, username, password) VALUES (?, ?, ?)';
     return executeStatement(insertStatement, [item.id, item.username, item.password]);
@@ -231,22 +284,30 @@ async function storePlaylists(playlists) {
 }
 
 async function storeTracks(tracks) {
-    const insertStatement = 'INSERT INTO track (trackID, trackName, artistName, albumName, lengthMS, \
-        danceability, acousticness, energy, loudness, mode, tempo, valence) \
+    const insertStatement = 'INSERT INTO track \
+        (trackID, trackName, artistName, albumName, lengthMS) \
         VALUES ? \
         ON DUPLICATE KEY UPDATE \
         trackName = VALUES(trackName), \
         artistName = VALUES(artistName), \
         albumName = VALUES(albumName), \
-        lengthMS = VALUES(lengthMS), \
+        lengthMS = VALUES(lengthMS);';
+    return executeStatement(insertStatement, [tracks.map(Object.values)]);
+}
+
+async function storeAudioFeatures(audioFeatures) {
+    const insertStatement = 'INSERT INTO audioFeatures \
+        (trackID, danceability, acousticness, energy, loudness, mode, tempo, valence) \
+        VALUES ? \
+        ON DUPLICATE KEY UPDATE \
         danceability = VALUES(danceability), \
         acousticness = VALUES(acousticness), \
         energy = VALUES(energy), \
         loudness = VALUES(loudness), \
         mode = VALUES(mode), \
         tempo = VALUES(tempo), \
-        valence = VALUES(valence)';
-    return executeStatement(insertStatement, [tracks.map(Object.values)]);
+        valence = VALUES(valence);';
+    return executeStatement(insertStatement, [audioFeatures.map(Object.values)]);
     }
 
 async function storeUserLibrary(userLibrary) {
@@ -264,11 +325,15 @@ module.exports = {
     getUsers,
     getToken,
     getPlaylists,
+    getAudioFeatures,
     getNumPlaylists,
     getNumTracks,
+    getAllTrackIDs,
+    getSuggestedTracks,
     storeUser,
     storeToken,
     storePlaylists,
     storeTracks,
+    storeAudioFeatures,
     storeUserLibrary,
 };

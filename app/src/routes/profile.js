@@ -30,6 +30,6 @@ module.exports = async (req, res) => {
       artist: data.item.artists[0].name,
       album: data.item.album.name,
       artworkUrl: data.item.album.images[0].url,
-      suggestions: await suggest.makeSuggestions(data.item.id),
+      suggestions: await suggest.makeSuggestions(accessToken, data.item.id, userID),
    });
 };
