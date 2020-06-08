@@ -5,7 +5,7 @@ services:
     image: node:12-alpine
     command: sh -c "npm install && npm run dev"
     ports:
-      - 3000:3000
+      - ${APPLICATION_PORT}:${APPLICATION_PORT}
     working_dir: /app
     volumes:
       - ./:/app

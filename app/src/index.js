@@ -13,7 +13,7 @@ const refresh = require('./routes/refresh');
 const getPlaylists = require('./routes/getPlaylists');
 const profile = require('./routes/profile');
 
-const port = 3000;
+const PORT = parseInt(process.env.APPLICATION_PORT);
 
 app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
@@ -30,7 +30,7 @@ app.get('/user/:userID', profile);
 app.post('/signin', signin);
 
 db.init().then(() => {
-   app.listen(port, () => console.log(`Listening at http://localhost:${port}`));
+   app.listen(PORT, () => console.log(`Listening at http://localhost:${PORT}`));
 }).catch((err) => {
    console.log(err);
    process.exit(1);
