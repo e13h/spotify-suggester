@@ -5,6 +5,7 @@ const callback_uri = encodeURIComponent(`${process.env.APPLICATION_URL}/callback
 const scopes = [
    'playlist-read-private',
    'user-read-currently-playing',
+   'playlist-read-collaborative,'
 ]
 
 module.exports = async (req, res) => {
