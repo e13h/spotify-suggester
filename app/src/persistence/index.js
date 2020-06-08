@@ -236,7 +236,7 @@ async function getAllTrackIDs(userID) {
     })
 }
 
-async function getSuggestedTracks(sourceAudioFeatures, userID, numSuggestions = 5) {
+async function getSuggestedTracks(sourceAudioFeatures, userID, trackID, numSuggestions = 5) {
     const selectStatement = `
     SELECT trackName, artistName, similarityScore
     FROM track JOIN
@@ -252,7 +252,7 @@ async function getSuggestedTracks(sourceAudioFeatures, userID, numSuggestions = 
             ABS(ROUND((tempo - ?), 4)) AS tempoDiff,
             ABS(ROUND((valence - ?), 4)) AS valenceDiff
             FROM audioFeatures WHERE trackID IN (
-                SELECT DISTINCT trackID FROM userLibrary WHERE userID = ? 
+                SELECT DISTINCT trackID FROM userLibrary WHERE userID = ? AND trackID <> ?
             )
         ) diffs
         ORDER BY similarityScore
@@ -260,7 +260,7 @@ async function getSuggestedTracks(sourceAudioFeatures, userID, numSuggestions = 
     ) suggestions
     ON track.trackID = suggestions.trackID;
     `;
-    return executeStatement(selectStatement, sourceAudioFeatures.map(Object.values)[0].concat(userID).concat(numSuggestions), (rows) => {
+    return executeStatement(selectStatement, sourceAudioFeatures.map(Object.values)[0].concat([userID, trackID, numSuggestions]), (rows) => {
         return rows.map(({ trackName, artistName, similarityScore }) => `${trackName} by ${artistName} had score of ${similarityScore}`);
     });
 }
