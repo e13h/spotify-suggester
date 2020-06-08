@@ -241,7 +241,7 @@ async function getSuggestedTracks(sourceAudioFeatures, userID, numSuggestions = 
     SELECT trackName, artistName, similarityScore
     FROM track JOIN
     (
-        SELECT trackID, (danceDiff + acousticDiff + energyDiff + loudDiff + modeDiff + tempoDiff + valenceDiff) as similarityScore
+        SELECT trackID, (danceDiff + acousticDiff + energyDiff + loudDiff + modeDiff + tempoDiff + valenceDiff) AS similarityScore
         FROM (SELECT
             trackID,
             ABS(ROUND((danceability - ?), 4)) AS danceDiff,
