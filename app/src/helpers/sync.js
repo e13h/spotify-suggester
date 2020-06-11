@@ -2,6 +2,7 @@
 const db = require('../persistence');
 const fetch = require('node-fetch');
 const fs = require('fs');
+const assert = require('assert');
 
 async function fetchPlaylists(accessToken) {
    const limit = 50;
@@ -33,7 +34,7 @@ async function fetchTracks(accessToken, playlistID) {
 }
 
 async function fetchAudioFeatures(accessToken, trackIDs) {
-   // assert trackIDs.length <= 100
+   assert(trackIDs.length <= 100);
    const fetchURL = `https://api.spotify.com/v1/audio-features?ids=${trackIDs.join(',')}`
    const response = await fetch(fetchURL, {
       method: 'GET',
