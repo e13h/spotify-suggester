@@ -202,13 +202,6 @@ async function getPlaylists(userID) {
     return executeStatement(selectStatement, userID);
 }
 
-async function getAudioFeatures(trackID) {
-    const selectStatement = 'SELECT danceability, acousticness, energy, loudness, mode, tempo, valence FROM audioFeatures WHERE trackID = ?;';
-    return executeStatement(selectStatement, trackID, (rows) => {
-        return rows.length > 0 ? rows.map(item => Object.assign({}, item)) : null;
-    });
-}
-
 async function getToken(userID) {
     const selectStatement = 'SELECT accessToken FROM token WHERE userID = ?';
     return executeStatement(selectStatement, [userID], (rows) => {
@@ -328,7 +321,6 @@ module.exports = {
     getUsers,
     getToken,
     getPlaylists,
-    getAudioFeatures,
     getNumPlaylists,
     getNumTracks,
     getAllTrackIDs,
