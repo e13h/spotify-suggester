@@ -1,3 +1,4 @@
+"use strict";
 const MongoClient = require('mongodb').MongoClient;
 const waitPort = require('wait-port');
 const assert = require('assert');

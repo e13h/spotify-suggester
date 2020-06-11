@@ -1,3 +1,4 @@
+"use strict";
 const db = require('../persistence');
 const fetch = require('node-fetch');
 

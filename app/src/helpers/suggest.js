@@ -1,3 +1,4 @@
+"use strict";
 const sync = require('../helpers/sync');
 const db = require('../persistence');
 

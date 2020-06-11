@@ -1,3 +1,4 @@
+"use strict";
 const waitPort = require('wait-port');
 const fs = require('fs');
 const mysql = require('mysql');

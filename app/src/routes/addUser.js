@@ -1,3 +1,4 @@
+"use strict";
 const db = require('../persistence');
 const { v4: uuidv4 } = require('uuid');
 
