@@ -263,7 +263,7 @@ async function getSuggestedTracks(sourceAudioFeatures, userID, trackID, numSugge
     ) suggestions
     ON track.trackID = suggestions.trackID;
     `;
-    return executeStatement(selectStatement, sourceAudioFeatures.map(Object.values)[0].concat([userID, trackID, numSuggestions]), (rows) => {
+    return executeStatement(selectStatement, Object.values(sourceAudioFeatures).concat([userID, trackID, numSuggestions]), (rows) => {
         return rows.map(({ trackName, artistName, similarityScore }) => `${trackName} by ${artistName} had score of ${similarityScore}`);
     });
 }

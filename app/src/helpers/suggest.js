@@ -12,7 +12,7 @@ async function makeSuggestions(accessToken, trackID, userID) {
       tempo: item.tempo,
       valence: item.valence,
    }));
-   return await db.getSuggestedTracks(sourceAudioFeatures, userID, trackID);
+   return await db.getSuggestedTracks(sourceAudioFeatures[0], userID, trackID);
 }
 
 module.exports = {
