@@ -272,14 +272,14 @@ async function storeToken(token) {
     return executeStatement(insertStatement, [token.accessToken, token.userID, token.expirationUTC, token.refreshToken]);
 }
 
-async function storePlaylists(playlists) {
+async function storePlaylists(playlists, userID) {
     const insertStatement = 'INSERT INTO playlist (playlistID, name, numSongs, pictureURL) VALUES ? \
         ON DUPLICATE KEY UPDATE \
         name = VALUES(name), numSongs = VALUES(numSongs), pictureURL = VALUES(pictureURL);';
     return executeStatement(insertStatement, [playlists.map(Object.values)], (result) => {return result.message;});
 }
 
-async function storeTracks(tracks) {
+async function storeTracks(tracks, userID) {
     const insertStatement = 'INSERT INTO track \
         (trackID, trackName, artistName, albumName, lengthMS) \
         VALUES ? \
@@ -291,7 +291,7 @@ async function storeTracks(tracks) {
     return executeStatement(insertStatement, [tracks.map(Object.values)]);
 }
 
-async function storeAudioFeatures(audioFeatures) {
+async function storeAudioFeatures(audioFeatures, userID) {
     const insertStatement = 'INSERT INTO audioFeatures \
         (trackID, danceability, acousticness, energy, loudness, mode, tempo, valence) \
         VALUES ? \

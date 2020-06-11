@@ -14,8 +14,8 @@ module.exports = async (req, res) => {
       return;
    }
 
-   const playlists = await sync.fetchPlaylists(accessToken);
-   await db.storePlaylists(playlists).catch((error) => {
+   let playlists = await sync.fetchPlaylists(accessToken);
+   await db.storePlaylists(playlists, userID).catch((error) => {
       return Promise.reject(new Error('Error storing playlists in database: ' + error));
    });
 
@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
       tracks = tracks.filter(({ trackID }) => trackID !== null); // drop tracks with null trackID
       totalDropped += (totalIncludingNull - tracks.length)
 
-      await db.storeTracks(tracks).catch((error) => {
+      await db.storeTracks(tracks, userID).catch((error) => {
          return Promise.reject(new Error ('Error storing tracks in database: ' + error));
       });
       const userLibrary = tracks.map((track) => [userID, track.trackID, playlist]);
@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
    let end = Math.min(100, trackIDs.length);
    while (start !== end) {
       const audioFeatures = await sync.fetchAudioFeatures(accessToken, trackIDs.slice(start, end));
-      db.storeAudioFeatures(audioFeatures);
+      db.storeAudioFeatures(audioFeatures, userID);
       start = end;
       end = Math.min(end + 100, trackIDs.length);
    }
