@@ -35,7 +35,6 @@ async function init() {
         charset: 'utf8mb4',
     });
 
-    return dropTables().then(() => createTables()); // for use during development only
     return createTables();
 }
 
@@ -118,30 +117,14 @@ function createTables() {
     });
 }
 
-function dropTables() {
-    return new Promise((acc, rej) => { 
-        executeStatement('DROP TABLE IF EXISTS token').then(() => {
-            console.log('dropped token');
-            return executeStatement('DROP TABLE IF EXISTS userLibrary');
-        }).then(() => {
-            console.log('dropped userLibrary');
-            return executeStatement('DROP TABLE IF EXISTS audioFeatures');
-        }).then(() => {
-            console.log('dropped audioFeatures');
-            return executeStatement('DROP TABLE IF EXISTS track');
-        }).then(() => {
-            console.log('dropped track');
-            return executeStatement('DROP TABLE IF EXISTS playlist');
-        }).then(() => {
-            console.log('dropped playlist');
-            return executeStatement('DROP TABLE IF EXISTS user');
-        }).then(() => {
-            console.log('dropped user');
-            acc();
-        }).catch((err) => {
-            return rej(err);
-        })
-    });
+async function dropTables() {
+    await executeStatement('DROP TABLE IF EXISTS token');
+    await executeStatement('DROP TABLE IF EXISTS userLibrary');
+    await executeStatement('DROP TABLE IF EXISTS audioFeatures');
+    await executeStatement('DROP TABLE IF EXISTS track');
+    await executeStatement('DROP TABLE IF EXISTS playlist');
+    await executeStatement('DROP TABLE IF EXISTS user');
+    console.log('Dropped all tables');
 }
 
 function executeStatement(statement, args = [], unpacker = (result) => { return result; }) {
@@ -153,8 +136,11 @@ function executeStatement(statement, args = [], unpacker = (result) => { return 
     });
 }
 
-async function teardown() {
-    return new Promise((acc, rej) => {
+async function teardown(cleanup=false) {
+    return new Promise(async (acc, rej) => {
+        if (cleanup) {
+            await dropTables();
+        }
         pool.end(err => {
             if (err) rej(err);
             else acc();
