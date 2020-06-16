@@ -1,4 +1,5 @@
-"use strict";
-console.log(`DB is set to: ${process.env.DB}`);
-if (process.env.DB === 'mongodb') module.exports = require('./mongo');
-else module.exports = require('./mysql');
+'use strict';
+import db from './mongo.js';    // uncomment this line for MongoDB database
+// import db from './mysql.js'; // uncomment this line for MySQL database
+
+export default db;

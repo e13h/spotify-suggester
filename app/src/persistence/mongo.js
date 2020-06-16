@@ -1,7 +1,7 @@
-"use strict";
-const MongoClient = require('mongodb').MongoClient;
-const waitPort = require('wait-port');
-const assert = require('assert');
+'use strict';
+import mongodb from 'mongodb';
+import waitPort from 'wait-port';
+import assert from 'assert';
 
 const {
    MONGO_HOST: HOST,
@@ -17,7 +17,7 @@ let mongo_client;
 async function init() {
    await waitPort({ host: HOST, port: PORT, timeout: 15000 });
    const url = `mongodb://${USER}:${PASSWORD}@${HOST}:${PORT}`;
-   const client = new MongoClient(url);
+   const client = new mongodb.MongoClient(url);
    client.connect((err, client) => {
       mongo_client = client;
       assert.equal(null, err);
@@ -195,7 +195,7 @@ async function storeAudioFeatures(items, userID) {
 
 async function storeUserLibrary() {}
 
-module.exports = {
+export default {
    init,
    teardown,
    usernameExists,

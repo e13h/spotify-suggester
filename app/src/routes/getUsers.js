@@ -1,7 +1,7 @@
-"use strict";
-const db = require('../persistence');
+'use strict';
+import db from '../persistence/index.js';
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
    const users = await db.getUsers().catch((error) => {
       res.send('Error getting users from database: ' + error);
       return;

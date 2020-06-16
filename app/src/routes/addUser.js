@@ -1,27 +1,12 @@
-"use strict";
-const db = require('../persistence');
-const { v4: uuidv4 } = require('uuid');
+'use strict';
+import service from '../service/addUser.js';
 
-const callback_uri = encodeURIComponent(`${process.env.APPLICATION_URL}/callback`);
-const scopes = [
-   'playlist-read-private',
-   'user-read-currently-playing',
-   'playlist-read-collaborative,'
-]
-
-module.exports = async (req, res) => {
-   const user = {
-      id: uuidv4(),
-      username: req.body.username,
-      password: req.body.password,
-   };
-   if (await db.usernameExists(user.username)) {
-      res.send(`Username "${user.username}" is already taken.`);
+export default async (req, res) => {
+   req.session.fastSync = req.body.fastSync === 'on' ? true : false;
+   const result = await service(req.body.username, req.body.password);
+   if (result.error) {
+      res.send(result.error);
       return;
    }
-   await db.storeUser(user).catch((error) => {
-      res.send('Error storing user in database: ' + error);
-      return;
-   });
-   res.redirect(`https://accounts.spotify.com/authorize?client_id=${process.env.CLIENT_ID}&response_type=code&redirect_uri=${callback_uri}&scope=${scopes.join('%20')}&state=${user.id}`);
+   res.redirect(result.redirect_url);
 };

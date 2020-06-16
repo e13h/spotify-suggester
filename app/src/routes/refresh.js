@@ -1,8 +1,8 @@
-"use strict";
-const db = require('../persistence');
-const sync = require('../helpers/sync');
+'use strict';
+import db from '../persistence/index.js';
+import sync from '../helpers/sync.js';
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
    const userID = req.params.userID;
    const accessToken = req.session.accessToken;
    if (!(await db.userIDExists(userID))) {

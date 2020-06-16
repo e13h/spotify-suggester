@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   app:
-    image: node:12-alpine
+    image: node:alpine
     command: sh -c "npm install && npm run dev"
     ports:
       - ${APPLICATION_PORT}:${APPLICATION_PORT}

@@ -1,9 +1,9 @@
-"use strict";
-const db = require('../persistence');
-const fetch = require('node-fetch');
-const suggest = require('../helpers/suggest');
+'use strict';
+import db from '../persistence/index.js';
+import fetch from 'node-fetch';
+import suggest from '../helpers/suggest.js';
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
    const userID = req.params.userID;
    const accessToken = req.session.accessToken;
    if (accessToken !== await db.getToken(userID)) {

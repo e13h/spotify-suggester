@@ -2,7 +2,12 @@
   "name": "spotify-suggester",
   "version": "1.0.0",
   "description": "Suggests songs you haven't listened to in a while based on your currently playing Spotify track.",
-  "main": "index.js",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./response": "./src/response"
+  },
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/index.js",

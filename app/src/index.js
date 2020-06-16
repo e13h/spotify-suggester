@@ -1,25 +1,32 @@
-"use strict";
-require('dotenv').config();
-const express = require('express');
-const session = require('express-session');
+'use strict';
+import './config.js';
+import express from 'express';
+import session from 'express-session';
+import http from 'http';
+import path from 'path';
+import body_parser from 'body-parser';
+
 const app = express();
+const server = http.createServer(app);
 
-const db = require('./persistence');
+import db from './persistence/index.js';
 
-const getUsers = require('./routes/getUsers');
-const addUser = require('./routes/addUser');
-const signin = require('./routes/signin');
-const callback = require('./routes/callback');
-const refresh = require('./routes/refresh');
-const getPlaylists = require('./routes/getPlaylists');
-const profile = require('./routes/profile');
+import addUserService from './service/addUser.js';
+
+import getUsers from './routes/getUsers.js';
+import addUser from './routes/addUser.js';
+import signin from './routes/signin.js';
+import callback from './routes/callback.js';
+import refresh from './routes/refresh.js';
+import getPlaylists from './routes/getPlaylists.js';
+import profile from './routes/profile.js';
 
 const PORT = parseInt(process.env.APPLICATION_PORT);
 
 app.set('view engine', 'pug');
-app.set('views', __dirname + '/views');
-app.use(require('body-parser').urlencoded({ extended: true }));
-app.use(express.static(__dirname + '/static'));
+app.set('views', path.join(path.resolve(), '/src/views'));
+app.use(body_parser.urlencoded({ extended: true }));
+app.use(express.static(path.join(path.resolve(), '/src/static')));
 app.use(session({ secret: "spotify secret! "}));
 
 app.get('/users', getUsers);
@@ -31,7 +38,7 @@ app.get('/user/:userID', profile);
 app.post('/signin', signin);
 
 db.init().then(() => {
-   app.listen(PORT, () => console.log(`Listening at http://localhost:${PORT}`));
+   server.listen(PORT, () => console.log(`Listening at http://localhost:${PORT}`));
 }).catch((err) => {
    console.log(err);
    process.exit(1);

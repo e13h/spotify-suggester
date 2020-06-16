@@ -1,7 +1,7 @@
-"use strict";
-const db = require('../persistence');
+'use strict';
+import db from '../persistence/index.js';
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
    const username = req.body.username;
    const password = req.body.password;
    const userID = await db.getUserID(username, password);

@@ -1,6 +1,6 @@
-"use strict";
-const sync = require('../helpers/sync');
-const db = require('../persistence');
+'use strict';
+import sync from '../helpers/sync.js'
+import db from '../persistence/index.js';
 
 async function makeSuggestions(accessToken, trackID, userID) {
    const sourceAudioFeatures = (await sync.fetchAudioFeatures(accessToken, [trackID])).map((item) => Object.assign({
@@ -15,6 +15,6 @@ async function makeSuggestions(accessToken, trackID, userID) {
    return await db.getSuggestedTracks(sourceAudioFeatures[0], userID, trackID);
 }
 
-module.exports = {
+export default {
    makeSuggestions,
 };

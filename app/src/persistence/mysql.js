@@ -1,7 +1,7 @@
-"use strict";
-const waitPort = require('wait-port');
-const fs = require('fs');
-const mysql = require('mysql');
+'use strict';
+import waitPort from 'wait-port';
+import { readFileSync } from 'fs';
+import mysql from 'mysql';
 
 const {
     MYSQL_HOST: HOST,
@@ -18,10 +18,10 @@ const PORT = parseInt(process.env.MYSQL_PORT);
 let pool;
 
 async function init() {
-    const host = HOST_FILE ? fs.readFileSync(HOST_FILE) : HOST;
-    const user = USER_FILE ? fs.readFileSync(USER_FILE) : USER;
-    const password = PASSWORD_FILE ? fs.readFileSync(PASSWORD_FILE) : PASSWORD;
-    const database = DB_FILE ? fs.readFileSync(DB_FILE) : DB;
+    const host = HOST_FILE ? readFileSync(HOST_FILE) : HOST;
+    const user = USER_FILE ? readFileSync(USER_FILE) : USER;
+    const password = PASSWORD_FILE ? readFileSync(PASSWORD_FILE) : PASSWORD;
+    const database = DB_FILE ? readFileSync(DB_FILE) : DB;
 
     console.log(`mysql port: ${PORT}`);
     await waitPort({ host, port: PORT, timeout: 15000 });
@@ -297,7 +297,7 @@ async function storeUserLibrary(userLibrary) {
     return executeStatement(insertStatement, [userLibrary.map(Object.values)]);
 }
 
-module.exports = {
+export default {
     init,
     teardown,
     usernameExists,

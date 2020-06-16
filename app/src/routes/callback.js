@@ -1,11 +1,11 @@
-"use strict";
-const db = require('../persistence');
-const fetch = require('node-fetch');
+'use strict';
+import db from '../persistence/index.js';
+import fetch from 'node-fetch';
 
 const callback_uri = encodeURIComponent(`${process.env.APPLICATION_URL}/callback`);
 const clientIDSecret = Buffer.from(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`).toString('base64');
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
    if (req.query.error) {
       res.send(`Error: ${req.query.error}`);
       return;

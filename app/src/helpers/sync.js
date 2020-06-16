@@ -1,8 +1,8 @@
-"use strict";
-const db = require('../persistence');
-const fetch = require('node-fetch');
-const fs = require('fs');
-const assert = require('assert');
+'use strict';
+import db from '../persistence/index.js';
+import fetch from 'node-fetch';
+import { readFileSync } from 'fs';
+import assert from 'assert';
 
 async function fetchPlaylists(accessToken) {
    const limit = 50;
@@ -77,7 +77,7 @@ async function getDataFromSpotify(accessToken, fetchURL, unpacker) {
    return itemsUnpacked;
 }
 
-module.exports = {
+export default {
    fetchPlaylists,
    fetchTracks,
    fetchAudioFeatures,
