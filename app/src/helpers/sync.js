@@ -77,8 +77,46 @@ async function getDataFromSpotify(accessToken, fetchURL, unpacker) {
    return itemsUnpacked;
 }
 
+async function testPlaylists(req, res) {
+   console.log('running testPlaylists');
+   // let playlists = fs.readFileSync('/app/src/test/testPlaylistData.json', 'utf8');
+   let playlists = readFileSync('/app/src/test/smallPlaylistTest.json', 'utf8');
+   playlists = await JSON.parse(playlists);
+
+   await db.storePlaylists(playlists).then((result) => {
+      console.log(result);
+   }).catch((error) => {
+      return Promise.reject(new Error('Error storing playlists in database: ' + error));
+   });
+
+   playlists = await db.getPlaylists(null).catch((error) => {
+      res.status(500).send('Could not get playlists from database: ' + error);
+      return;
+   });
+   let playlistNames = [];
+   for (const {name: name, numSongs: count, playlistID: id} of playlists) {
+      playlistNames.push(`${name} (${id}): ${count} songs`);
+   }
+   res.send(playlistNames);
+}
+
+async function testTracks(req, res) {
+   console.log('running testTracks');
+   let tracks = readFileSync('/app/src/test/smallTrackTest.json', 'utf8');
+   tracks = await JSON.parse(tracks);
+
+   await db.storeTracks(tracks).then((result) => {
+      console.log(result);
+   }).catch((error) => {
+      return Promise.reject(new Error('Error storing playlists in database: ' + error));
+   });
+   res.send('done');
+}
+
 module.exports = {
    fetchPlaylists,
    fetchTracks,
    fetchAudioFeatures,
+   testPlaylists,
+   testTracks,
 }
