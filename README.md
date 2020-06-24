@@ -1,30 +1,6 @@
 # Spotify Suggester
 Spotify Suggester is a web app that suggests music to you based on the currently playing track.
 
-[Here](https://github.com/BYUCS452S2020/spotify-suggestor/blob/master/pitch.md) is the project pitch.
-
-See [below](#getting-started) to learn how to get the app up and running on your own computer.
-
-## Team
-* Evan Smith
-* Madison Nelson
-
-## Implementation Details
-Frontend:
-* HTML/CSS/Javascript (Vue)
-
-Backend:
-* Node (Javascript)
-* MySQL
-* Docker
-
-Hosted locally (available on the internet using Serveo)
-
-### Nature of Connections
-1. Docker spins up server and database
-1. Serveo exposes local port on the internet
-1. User interactions with the app result in interprocess communication between database and server
-
 # Getting Started
 To host Spotify Suggester locally, follow this guide.
 ## Prerequisites
