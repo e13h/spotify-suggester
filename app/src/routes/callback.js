@@ -1,6 +1,8 @@
 "use strict";
 const db = require('../persistence');
 const fetch = require('node-fetch');
+const refresher = require('../helpers/refresh');
+const refreshEventEmitter = refresher.eventEmitter;
 
 const callback_uri = encodeURIComponent(`${process.env.APPLICATION_URL}/callback`);
 const clientIDSecret = Buffer.from(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`).toString('base64');
@@ -37,5 +39,17 @@ module.exports = async (req, res) => {
    });
 
    req.session.accessToken = token.accessToken;
-   res.redirect(`${process.env.APPLICATION_URL}/user/${userID}/refresh`);
+   
+   refresher.refresh(userID, token.accessToken);
+   refreshEventEmitter.on('Error', (userID, msg) => {
+      console.log(`Refresh error [${userID}]: ${msg}`);
+   });
+   refreshEventEmitter.on('Done', (userID) => {
+      console.log(`Refresh is complete: ${userID}`);
+   });
+   refreshEventEmitter.on('Log', (userID, msg) => {
+      console.log(`Refresh log [${userID}]: ${msg}`);
+   });
+   
+   res.redirect(`${process.env.APPLICATION_URL}/user/${userID}`);
 };

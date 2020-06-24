@@ -77,7 +77,17 @@ async function getPlaylists() {}
 async function getNumPlaylists(userID) {
    const result = await db.collection('UserData').aggregate([
       { $match: { _id: userID }},
-      { $project: { _id: 0, numPlaylists: { $size: { $objectToArray: "$playlists" }}}}
+      { $project: {
+         _id: 0,
+         numPlaylists: {
+            $size: {
+               $ifNull: [
+                  { $objectToArray: "$playlists" },
+                  [],
+               ]
+            }
+         },
+      }}
    ]).toArray();
    return result[0].numPlaylists;
 }
@@ -85,7 +95,17 @@ async function getNumPlaylists(userID) {
 async function getNumTracks(userID) {
    const result = await db.collection('UserData').aggregate([
       { $match: { _id: userID }},
-      { $project: { _id: 0, unique: { $size: { $objectToArray: "$library" }}}}
+      { $project: {
+         _id: 0,
+         unique: {
+            $size: {
+               $ifNull: [
+                  { $objectToArray: "$library" },
+                  [],
+               ]
+            }
+         }
+      }}
    ]).toArray();
    return result[0];
 }
@@ -107,16 +127,21 @@ async function getSuggestedTracks(sourceAudioFeatures, userID, trackID) {
    const query = { _id: userID };
    const options = { projection: { _id: 0, library: 1 }};
    const result = await db.collection('UserData').findOne(query, options);
+   if (result.library === undefined) {
+      return [];
+   }
    const computeError = function(a, b) {
       return Math.pow(Math.abs(a - b), 2);
    };
    let scores = {}
    for (const track of Object.values(result.library)) {
       if (track.trackID === trackID) {
-         scores[track.trackID] = Infinity;
          continue;
       }
       const features = track.audioFeatures;
+      if (features === undefined) {
+         continue;
+      }
       const errors = {
          danceability: computeError(features.danceability, sourceAudioFeatures.danceability),
          acousticness: computeError(features.acousticness, sourceAudioFeatures.acousticness),
@@ -138,6 +163,9 @@ async function getSuggestedTracks(sourceAudioFeatures, userID, trackID) {
 }
 
 async function _getTrackInfo(trackIDs, userID) {
+   if (trackIDs.length === 0) {
+      return [];
+   }
    let query = { _id: userID };
    let options = { projection: {}};
    for (const id of trackIDs) {
