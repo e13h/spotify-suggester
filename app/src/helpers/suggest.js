@@ -3,6 +3,9 @@ const sync = require('../helpers/sync');
 const db = require('../persistence');
 
 async function makeSuggestions(accessToken, trackID, userID) {
+   if (trackID === null) {
+      return [];
+   }
    const sourceAudioFeatures = (await sync.fetchAudioFeatures(accessToken, [trackID])).map((item) => Object.assign({
       danceability: item.danceability,
       acousticness: item.acousticness,
