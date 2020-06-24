@@ -1,0 +1,33 @@
+{
+  "name": "spotify-suggester-client",
+  "version": "1.0.0",
+  "description": "A web client for the Spotify Suggester service.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.js",
+    "installdeps": "npm install --save ../app/"
+  },
+  "keywords": [
+    "spotify",
+    "suggester",
+    "recommender",
+    "music",
+    "client"
+  ],
+  "author": "Evan Smith",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.0",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "spotify-suggester": "file:../app"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}

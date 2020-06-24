@@ -2,6 +2,7 @@
 import db from '../persistence/index.js';
 
 export default async (req, res) => {
+   console.log(`Cookies: ${JSON.stringify(req.cookies)}`);
    const username = req.body.username;
    const password = req.body.password;
    const userID = await db.getUserID(username, password);

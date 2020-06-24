@@ -11,7 +11,9 @@ export default async (req, res) => {
       return;
    }
    const auth_code = req.query.code;
-   const userID = req.query.state;
+   const state = JSON.parse(req.query.state);
+   const userID = state.userID;
+   const inquirer = state.inquirer;
 
    const requestData = `grant_type=authorization_code&code=${auth_code}&redirect_uri=${callback_uri}`;
    const response = await fetch('https://accounts.spotify.com/api/token', {
@@ -31,11 +33,17 @@ export default async (req, res) => {
       refreshToken: data.refresh_token,
       expirationUTC: new Date(Date.now() + (data.expires_in * 1000)).toUTCString(),
    };
-   await db.storeToken(token).catch((error) => {
+   db.storeToken(token).catch((error) => {
       res.send('Error storing token: ' + error);
       return;
    });
 
    req.session.accessToken = token.accessToken;
-   res.redirect(`${process.env.APPLICATION_URL}/user/${userID}/refresh`);
+   // res.redirect(`${process.env.APPLICATION_URL}/user/${userID}/refresh`);
+   res.cookie('test', 'test cookie');
+   res.cookie('access_token', 'Bearer ' + token.accessToken, {
+      maxAge: 3600000,
+      signed: true,
+   });
+   res.redirect(inquirer);
 };
