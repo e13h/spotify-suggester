@@ -9,19 +9,6 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
-    environment:
-      MYSQL_HOST: ${MYSQL_HOST}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DB: ${MYSQL_DB}
-
-  mysql:
-    image: mysql:5.7
-    volumes:
-      - music-mysql-data:/var/lib/mysql
-    environment: 
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DB}
 
   mongo:
     image: mongo:bionic
@@ -42,5 +29,4 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD}
 
 volumes:
-  music-mysql-data:
   music-mongo-data:

@@ -11,7 +11,6 @@ const addUser = require('./routes/addUser');
 const signin = require('./routes/signin');
 const callback = require('./routes/callback');
 const refresh = require('./routes/refresh');
-const getPlaylists = require('./routes/getPlaylists');
 const profile = require('./routes/profile');
 
 const PORT = parseInt(process.env.APPLICATION_PORT);
@@ -25,7 +24,6 @@ app.use(session({ secret: "spotify secret! "}));
 app.get('/users', getUsers);
 app.post('/users', addUser);
 app.get('/callback', callback);
-app.get('/user/:userID/playlists', getPlaylists);
 app.get('/user/:userID/refresh', refresh);
 app.get('/user/:userID', profile);
 app.post('/signin', signin);

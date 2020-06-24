@@ -72,8 +72,6 @@ async function getToken(userID) {
    return result === null ? null : result.accessToken;
 }
 
-async function getPlaylists() {}
-
 async function getNumPlaylists(userID) {
    const result = await db.collection('UserData').aggregate([
       { $match: { _id: userID }},
@@ -221,8 +219,6 @@ async function storeAudioFeatures(items, userID) {
    return db.collection('UserData').findOneAndUpdate(query, update);
 }
 
-async function storeUserLibrary() {}
-
 module.exports = {
    init,
    teardown,
@@ -232,7 +228,6 @@ module.exports = {
    getUserID,
    getUsers,
    getToken,
-   getPlaylists,
    getNumPlaylists,
    getNumTracks,
    getAllTrackIDs,
@@ -242,5 +237,4 @@ module.exports = {
    storePlaylists,
    storeTracks,
    storeAudioFeatures,
-   storeUserLibrary,
 };
