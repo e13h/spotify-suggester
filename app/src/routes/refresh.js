@@ -15,6 +15,12 @@ module.exports = async (req, res) => {
    }
 
    let playlists = await sync.fetchPlaylists(accessToken);
+   
+   if (req.session.fastSync) {
+      const limit = 2;
+      playlists = playlists.slice(0, limit);
+   }
+
    await db.storePlaylists(playlists, userID).catch((error) => {
       return Promise.reject(new Error('Error storing playlists in database: ' + error));
    });
@@ -35,7 +41,7 @@ module.exports = async (req, res) => {
       });
    }
    if (totalDropped > 0) {
-   console.log(`Dropped ${totalDropped} tracks containing null IDs`);
+      console.log(`Dropped ${totalDropped} tracks containing null IDs`);
    }
    
    const trackIDs = await db.getAllTrackIDs(userID);
