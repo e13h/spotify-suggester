@@ -1,6 +1,6 @@
 "use strict";
 const refresher = require('../helpers/refresh');
-const refreshEventEmitter = refresher.eventEmitter;
+const refreshEventEmitter = refresher.emitter;
 
 module.exports = async (req, res) => {
    const userID = req.params.userID;
