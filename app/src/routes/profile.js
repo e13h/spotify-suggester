@@ -20,7 +20,26 @@ module.exports = async (req, res) => {
          'Authorization': `Bearer ${accessToken}`,
       }
    });
-   const data = await response.json();
+   let data;
+   if (response.status === 200) {
+      data = await response.json();
+   } else {
+      data = {
+         item: {
+            id: null,
+            name: null,
+            artists: [
+               { name: null },
+            ],
+            album: {
+               name: null,
+               images: [
+                  { url: null },
+               ],
+            },
+         }
+      }
+   }
 
    res.render('profile', {
       userID: userID,
