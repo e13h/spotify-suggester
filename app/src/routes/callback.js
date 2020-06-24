@@ -2,7 +2,7 @@
 const db = require('../persistence');
 const fetch = require('node-fetch');
 const refresher = require('../helpers/refresh');
-const refreshEventEmitter = refresher.eventEmitter;
+const refreshEventEmitter = refresher.emitter;
 
 const callback_uri = encodeURIComponent(`${process.env.APPLICATION_URL}/callback`);
 const clientIDSecret = Buffer.from(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`).toString('base64');
